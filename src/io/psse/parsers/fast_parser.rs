@@ -25,6 +25,7 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
     //Finds section boundaries
     let lines: Vec<&[u8]> = mmap.split(|&c| c == b'\n').collect();
     let mut section_starts: HashMap<usize, usize> = HashMap::new();
+    let mut section_ends: HashMap<usize, usize> = HashMap::new();
     let mut section_number: usize = 0;
 
     for (i, line_bytes) in lines.iter().enumerate() {
@@ -66,6 +67,7 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
             let trimmed_line = line.trim();
             if trimmed_line.starts_with("0 /") {
                 found_section_start = true;
+                section_ends.insert(section_number - 1, i - 1);
                 continue;
             }
             if found_section_start & !trimmed_line.starts_with("@") {
@@ -87,8 +89,8 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
 
     let parse_adder: usize = (psse_data.header.revision >= 34) as usize;
     //Parse Buses
-    if let Some(&start_index) = section_starts.get(&1) {
-        let end_index = section_starts.get(&2).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&1), section_ends.get(&1)) {
+        //let end_index = section_starts.get(&2).cloned().unwrap_or(lines.len())-1;
         println!("Found BUS section between lines {}, {}", start_index, end_index);
         psse_data.buses = parse_buses(&lines[start_index..end_index]);
     }
