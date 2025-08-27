@@ -42,6 +42,9 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
                         branch_rating_code: parts[4].parse().unwrap_or(0),
                         system_frequency: parts[5].parse().unwrap_or(60.0),
                     };
+                    // Since V34+ have the leading /0 to indicate buses and also contain other junk at the start,
+                    // Skip the attempt to locate the bus section
+                    if psse_data.header.revision >= 34 { break; }
                     section_starts.insert(section_number, i + 1);
                     section_number += 1;
                 } else if parts.len() > 7 {
@@ -82,6 +85,7 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
     //Parse Buses
     if let Some(&start_index) = section_starts.get(&1) {
         let end_index = section_starts.get(&2).cloned().unwrap_or(lines.len())-1;
+        println!("Found BUS section between lines {}, {}", (start_index - 1), end_index);
         psse_data.buses = parse_buses(&lines[(start_index - 1)..end_index]);
     }
     //Parse Loads
