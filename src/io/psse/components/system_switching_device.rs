@@ -127,6 +127,7 @@ pub fn parse_system_switching_device(lines: &[&[u8]]) -> Vec<SystemSwitchingDevi
     lines.par_iter().filter_map(|line_bytes| {
         from_utf8(line_bytes).ok().and_then(|line| {
             let parts: Vec<&str> = line.split(",").map(|s| s.trim()).collect();
+            println!("{:?}", parts);
             Some(SystemSwitchingDevice{
                 from_bus: parts[0].parse().unwrap_or(0),
                 to_bus: parts[1].parse().unwrap_or(0),
