@@ -87,8 +87,8 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
     //Parse Buses
     if let Some(&start_index) = section_starts.get(&1) {
         let end_index = section_starts.get(&2).cloned().unwrap_or(lines.len())-1;
-        println!("Found BUS section between lines {}, {}", (start_index - 1), end_index);
-        psse_data.buses = parse_buses(&lines[(start_index - 1)..end_index]);
+        println!("Found BUS section between lines {}, {}", start_index, end_index);
+        psse_data.buses = parse_buses(&lines[start_index..end_index]);
     }
     //Parse Loads
     if let Some(&start_index) = section_starts.get(&2) {
