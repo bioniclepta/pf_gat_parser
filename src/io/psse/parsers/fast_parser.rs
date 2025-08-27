@@ -44,7 +44,11 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
                     };
                     // Since V34+ have the leading /0 to indicate buses and also contain other junk at the start,
                     // Skip the attempt to locate the bus section
-                    if psse_data.header.revision >= 34 { break; }
+                    if psse_data.header.revision >= 34 {
+                        // Increase the section number to get to start the bus section
+                        section_number += 1;
+                        break;
+                    }
                     section_starts.insert(section_number, i + 1);
                     section_number += 1;
                 } else if parts.len() > 7 {
@@ -55,21 +59,19 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
             }
         }
     }
-
+    let mut found_section_start: bool = false;
     for (i, line_bytes) in lines.iter().enumerate() {
         if let Ok(line) = from_utf8(line_bytes) {
             let trimmed_line = line.trim();
             if trimmed_line.starts_with("0 /") {
-                // let lowercase_line = trimmed_line.to_lowercase();
-                // let splits = lowercase_line.split(',').nth(1).unwrap_or("");
-                // let start_bytes = splits.find("begin").unwrap_or(0);
-                // if start_bytes == 0 {continue;}
-                // let end_bytes = splits.find("data").unwrap_or(splits.len());
-                // section_starts.insert(splits[start_bytes+6..end_bytes-1].to_owned()
-                // .replace("-", "")
-                // .replace(" ", ""), i + 1);
+                found_section_start = true;
+            }
+            if found_section_start & !trimmed_line.starts_with("@") {
+                // Look specifically for lines that contain data after the section start
+                // then add it to the section start and revert the found_section_start variable
                 section_starts.insert(section_number, i+1);
                 section_number += 1;
+                found_section_start = false
             }
         }
     }
