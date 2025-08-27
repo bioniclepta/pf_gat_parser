@@ -640,7 +640,7 @@ fn parse_two_winding_transformer(parts1: Vec<&str>, line2_str: &str, line3_str: 
     let parts4: Vec<&str> = line4_str.split(',').map(|s| s.trim()).collect();
 
     let parse_adder: usize = ((psse_version >= 34) as usize) * 9;
-
+    println!("{:?}", parts1);
     Transformer {
         from_bus: parts1[0].parse().unwrap_or(0),
         to_bus: parts1[1].parse().unwrap_or(0),
