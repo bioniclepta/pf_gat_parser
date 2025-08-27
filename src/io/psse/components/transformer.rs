@@ -610,7 +610,7 @@ pub struct Transformer {
 pub fn parse_transformers(lines: &[&[u8]], psse_version: i8) -> Vec<Transformer> {
     let mut transformers: Vec<Transformer> = Vec::new();
     let mut i = 0;
-    while i < lines.len() - 1 {
+    while i < lines.len() {
         if let (Ok(line1_str), Ok(line2_str), Ok(line3_str), Ok(line4_str)) = (
             from_utf8(lines[i]), from_utf8(lines[i + 1]), from_utf8(lines[i + 2]), from_utf8(lines[i + 3])
         ) {
@@ -624,7 +624,7 @@ pub fn parse_transformers(lines: &[&[u8]], psse_version: i8) -> Vec<Transformer>
             } else {
                 // Three winding transformer (5 lines)
                 let line5_str = from_utf8(lines[i + 4]).unwrap();
-                let three_wnd_xfmr: Transformer = parse_three_winding_transformer(parts1, line2_str, line3_str, line4_str, line5_str, psse_version);
+                //let three_wnd_xfmr: Transformer = parse_three_winding_transformer(parts1, line2_str, line3_str, line4_str, line5_str, psse_version);
                 transformers.push(three_wnd_xfmr);
                 i += 5;
             }
