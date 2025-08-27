@@ -46,6 +46,7 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
                     // Skip the attempt to locate the bus section
                     if psse_data.header.revision >= 34 {
                         // Increase the section number to get to start the bus section
+                        section_starts.insert(section_number, i + 1);
                         section_number += 1;
                         break;
                     }
@@ -65,13 +66,14 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
             let trimmed_line = line.trim();
             if trimmed_line.starts_with("0 /") {
                 found_section_start = true;
+                continue;
             }
             if found_section_start & !trimmed_line.starts_with("@") {
                 // Look specifically for lines that contain data after the section start
                 // then add it to the section start and revert the found_section_start variable
                 section_starts.insert(section_number, i+1);
                 section_number += 1;
-                found_section_start = false
+                found_section_start = false;
             }
         }
     }
