@@ -67,7 +67,7 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
             let trimmed_line = line.trim();
             if trimmed_line.starts_with("0 /") {
                 found_section_start = true;
-                section_ends.insert(section_number - 1, i - 1);
+                section_ends.insert(section_number - 1, i);
                 continue;
             }
             if found_section_start & !trimmed_line.starts_with("@") {
@@ -95,90 +95,74 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
         psse_data.buses = parse_buses(&lines[start_index..end_index]);
     }
     //Parse Loads
-    if let Some(&start_index) = section_starts.get(&2) {
-        let end_index = section_starts.get(&3).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&2), section_ends.get(&2)) {
         psse_data.loads = parse_loads(&lines[start_index..end_index]);
     }
     //Parse Fixed Shunts
-    if let Some(&start_index) = section_starts.get(&3) {
-        let end_index = section_starts.get(&4).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&3), section_ends.get(&3)) {
         psse_data.fixed_shunts = parse_fixedshunts(&lines[start_index..end_index]);
     }
     //Parse Generators
-    if let Some(&start_index) = section_starts.get(&4) {
-        let end_index = section_starts.get(&5).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&4), section_ends.get(&4)) {
         psse_data.generators = parse_generators(&lines[start_index..end_index], psse_data.header.revision);
     }
     //Parse Branches
-    if let Some(&start_index) = section_starts.get(&5) {
-        let end_index = section_starts.get(&6).cloned().unwrap_or(0)-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&5), section_ends.get(&5)) {
         psse_data.branches = parse_lines(&lines[start_index..end_index], psse_data.header.revision);
     }
     //Parse System Switching Devices (V34+ Only)
     if psse_data.header.revision >= 34 {
-        if let Some(&start_index) = section_starts.get(&6) {
-            let end_index = section_starts.get(&7).cloned().unwrap_or(0)-1;
+        if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&6), section_ends.get(&6)) {
             psse_data.switching_devices = parse_system_switching_device(&lines[start_index..end_index]);
         }
     } else {
         psse_data.switching_devices = Vec::new();
     }
     //Parse Transformers
-    if let Some(&start_index) = section_starts.get(&(6 + parse_adder)) {
-        let end_index = section_starts.get(&(7 + parse_adder)).cloned().unwrap_or(0)-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(6 + parse_adder)), section_ends.get(&(6 + parse_adder))) {
         psse_data.transformers = parse_transformers(&lines[start_index..end_index], psse_data.header.revision);
     }
     //Parse Areas
-    if let Some(&start_index) = section_starts.get(&(7 + parse_adder)) {
-        let end_index = section_starts.get(&(8 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(7 + parse_adder)), section_ends.get(&(7 + parse_adder))) {
         psse_data.areas = parse_areas(&lines[start_index..end_index]);
     }
     //Parse Two Terminal DC
-    if let Some(&start_index) = section_starts.get(&(8 + parse_adder)) {
-        let end_index = section_starts.get(&(9 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(8 + parse_adder)), section_ends.get(&(8 + parse_adder))) {
         psse_data.two_terminal_dc = parse_two_terminal_dc_line(&lines[start_index..end_index], psse_data.header.revision);
     }
     //Parse VSC DC line
-    if let Some(&start_index) = section_starts.get(&(9 + parse_adder)) {
-        let end_index = section_starts.get(&(10 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(9 + parse_adder)), section_ends.get(&(9 + parse_adder))) {
         psse_data.vsc_dc = parse_vsc_dc_line(&lines[start_index..end_index], psse_data.header.revision);
     }
     //Parse Impedance Correction tables
-    if let Some(&start_index) = section_starts.get(&(10 + parse_adder)) {
-        let end_index = section_starts.get(&(11 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(10 + parse_adder)), section_ends.get(&(10 + parse_adder))) {
         psse_data.impedance_correction = parse_impedance_correction_table(&lines[start_index..end_index], psse_data.header.revision);
     }
     //Parse Multi-Terminal DC line
-    if let Some(&start_index) = section_starts.get(&(11 + parse_adder)) {
-        let end_index = section_starts.get(&(12 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(11 + parse_adder)), section_ends.get(&(11 + parse_adder))) {
         psse_data.multi_terminal_line = parse_multiterminal_dc_line(&lines[start_index..end_index]);
     }
     //Parse Multi-Terminal DC line
-    if let Some(&start_index) = section_starts.get(&(12 + parse_adder)) {
-        let end_index = section_starts.get(&(13 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(12 + parse_adder)), section_ends.get(&(12 + parse_adder))) {
         psse_data.multi_section_line = parse_multisection_lines(&lines[start_index..end_index]);
     }
     //Parse Zones
-    if let Some(&start_index) = section_starts.get(&(13 + parse_adder)) {
-        let end_index = section_starts.get(&(14 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(13 + parse_adder)), section_ends.get(&(13 + parse_adder))) {
         psse_data.zones = parse_zones(&lines[start_index..end_index]);
     }
     //Parse Inter-Area Transfer
-    if let Some(&start_index) = section_starts.get(&(14 + parse_adder)) {
-        let end_index = section_starts.get(&(15 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(14 + parse_adder)), section_ends.get(&(14 + parse_adder))) {
         psse_data.inter_area_transfer = parse_area_transfers(&lines[start_index..end_index]);
     }
     //Parse Owners
-    if let Some(&start_index) = section_starts.get(&(15 + parse_adder)) {
-        let end_index = section_starts.get(&(16 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(15 + parse_adder)), section_ends.get(&(15 + parse_adder))) {
         psse_data.owners = parse_owners(&lines[start_index..end_index]);
     }
     //Parse FACTS
-    if let Some(&start_index) = section_starts.get(&(16 + parse_adder)) {
-        let end_index = section_starts.get(&(17 + parse_adder)).cloned().unwrap_or(lines.len())-1;
+    if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&(16 + parse_adder)), section_ends.get(&(16 + parse_adder))) {
         psse_data.facts = parse_facts(&lines[start_index..end_index], psse_data.header.revision);
     }
-    println!("{:?}", psse_data.facts);
+    //Return the completed PSS/E data struct
     Ok(psse_data)
 }
 
