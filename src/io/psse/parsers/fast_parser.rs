@@ -70,10 +70,10 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
                 section_ends.insert(section_number - 1, i);
                 continue;
             }
-            if found_section_start & !trimmed_line.starts_with("@") {
+            if found_section_start & !trimmed_line.starts_with("@") & !trimmed_line.starts_with("0 /") {
                 // Look specifically for lines that contain data after the section start
                 // then add it to the section start and revert the found_section_start variable
-                section_starts.insert(section_number, i+1);
+                section_starts.insert(section_number, i );
                 section_number += 1;
                 found_section_start = false;
             }
