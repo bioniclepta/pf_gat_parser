@@ -625,7 +625,7 @@ pub fn parse_transformers(lines: &[&[u8]], psse_version: i8) -> Vec<Transformer>
                 // Three winding transformer (5 lines)
                 let line5_str = from_utf8(lines[i + 4]).unwrap();
                 //let three_wnd_xfmr: Transformer = parse_three_winding_transformer(parts1, line2_str, line3_str, line4_str, line5_str, psse_version);
-                transformers.push(three_wnd_xfmr);
+                //transformers.push(three_wnd_xfmr);
                 i += 5;
             }
         }        
