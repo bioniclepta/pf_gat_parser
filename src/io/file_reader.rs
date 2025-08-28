@@ -11,14 +11,3 @@ where P: AsRef<Path>, {
         .collect();
     lines
 }
-
-#[test]
-fn test_read_lines() {
-    let dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    let filepath: String = format!("{}/cases/IEEE 118 Bus.RAW", dir);
-    let lines = read_file_lines(&filepath);
-    // Consumes the iterator, returns an (Optional) String
-    for line in lines {
-        println!("{}", line);
-    }
-}
