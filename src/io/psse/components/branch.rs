@@ -184,7 +184,7 @@ pub struct Branch {
 pub fn parse_lines(lines: &[&[u8]], psse_version: i8) -> Vec<Branch> {
     // a bool to int to add to the line parsing since V34 introduced new variables in the middle of everything
     let parse_adder: usize = (psse_version >= 34) as usize;
-    let rating_adder: usize = parse_adder * 9;
+    let rating_adder: usize = parse_adder * 10;
     lines.par_iter().filter_map(|line_bytes| {
         from_utf8(line_bytes).ok().and_then(|line| {
             let parts: Vec<&str> = line.split(",").map(|s| s.trim()).collect();
@@ -226,4 +226,41 @@ pub fn parse_lines(lines: &[&[u8]], psse_version: i8) -> Vec<Branch> {
             })
         })
     }).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_branch_v35() {
+        let branch_str: &'static str = "1111,   2222,'5 ',9.087000E-03,8.765000E-03,   1.22295,'                                        ',   550.00,   890.00,     700.00,     0.00,     0.00,     0.00,     0.00,     0.00,     0.00,     0.00,     0.00,     0.00,   0.00000,   0.00000,   0.00000,   0.00000, 2,3,   5.20000, 863,  1.0000,";
+        let lines: Vec<&[u8]> = branch_str.lines().map(|line| line.as_bytes()).collect();
+        let binding: Vec<Branch> = parse_lines(&lines, 35);
+        let branch: Option<&Branch> = binding.get(0);
+        //To avoid checking everything, check bits and pieces to make sure things are in the right place
+        //If any values were distorted on the lines from the adder, it would show here
+        assert_eq!(branch.unwrap().from_bus, 1111);
+        assert_eq!(branch.unwrap().to_bus, 2222);
+        assert_eq!(branch.unwrap().circuit, "5".to_string());
+        assert_eq!(branch.unwrap().status, 2);
+        assert_eq!(branch.unwrap().meter_end, 3);
+        assert_eq!(branch.unwrap().length, 5.2);
+    }
+
+    #[test]
+    fn parse_branch_v33() {
+        let branch_str: &'static str = " 1111,   2222,'5 ',9.087000E-03,8.765000E-03,   1.22295,   550.00,   890.00,     700.00,   0.00000,   0.00000,   0.00000,   0.00000, 2,3,   5.20000, 863,  1.0000,";
+        let lines: Vec<&[u8]> = branch_str.lines().map(|line| line.as_bytes()).collect();
+        let binding: Vec<Branch> = parse_lines(&lines, 33);
+        let branch: Option<&Branch> = binding.get(0);
+        //To avoid checking everything, check bits and pieces to make sure things are in the right place
+        //If any values were distorted on the lines from the adder, it would show here
+        assert_eq!(branch.unwrap().from_bus, 1111);
+        assert_eq!(branch.unwrap().to_bus, 2222);
+        assert_eq!(branch.unwrap().circuit, "5".to_string());
+        assert_eq!(branch.unwrap().status, 2);
+        assert_eq!(branch.unwrap().meter_end, 3);
+        assert_eq!(branch.unwrap().length, 5.2);
+    }
 }
