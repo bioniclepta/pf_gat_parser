@@ -1,4 +1,5 @@
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct InductionMachine {
     pub bus_id: i32,    //Bus ID the induction machine is at

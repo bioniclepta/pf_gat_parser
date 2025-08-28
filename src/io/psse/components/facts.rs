@@ -2,6 +2,7 @@ use std::str::from_utf8;
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Facts {
     /// ## NAME: FACTS name

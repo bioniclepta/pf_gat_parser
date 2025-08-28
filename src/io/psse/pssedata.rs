@@ -1,6 +1,7 @@
 use super::components::structs::*;
 
 // Enum to keep track of which section we are parsing
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
 pub enum PSSEDatatype {
     Header,
@@ -26,6 +27,7 @@ pub enum PSSEDatatype {
     EndOfFile,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Default)]
 pub struct PSSEData {
     pub header: HeaderInfo,

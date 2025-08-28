@@ -1,6 +1,6 @@
 use std::str::from_utf8;
 
-
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Default, PartialEq)]
 /// A struct containing the information for each impedance correction table entry in the impedance table correction series
 pub struct ImpedanceCorrectionEntry {
@@ -15,6 +15,7 @@ pub struct ImpedanceCorrectionEntry {
     pub imag_complex_scaling_factor: f64,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Default, PartialEq)]
 /// A struct containing the information for each impedance correction table entry series in the PSS/E .RAW case
 pub struct ImpedanceCorrectionTable {
@@ -26,6 +27,7 @@ pub struct ImpedanceCorrectionTable {
     pub correction_table_entries: Vec<ImpedanceCorrectionEntry>
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 impl ImpedanceCorrectionEntry {
     fn is_end_of_table(&self) -> bool {
         (self.tap == 0.0) &

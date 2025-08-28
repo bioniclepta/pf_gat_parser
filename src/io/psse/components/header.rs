@@ -1,4 +1,5 @@
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Default, PartialEq)]
 /// A struct containing the information from the .RAW header
 pub struct HeaderInfo {

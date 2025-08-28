@@ -1,8 +1,6 @@
 use std::str::from_utf8;
 
-
-
-
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Default, PartialEq)]
 /// A struct containing the information for each network two-terminal DC branch in the PSS/E .RAW case
 pub struct TwoTerminalDc {
