@@ -27,7 +27,6 @@ pub struct ImpedanceCorrectionTable {
     pub correction_table_entries: Vec<ImpedanceCorrectionEntry>
 }
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 impl ImpedanceCorrectionEntry {
     fn is_end_of_table(&self) -> bool {
         (self.tap == 0.0) &
