@@ -1,4 +1,6 @@
 # Powerflow Grid Analysis Tool \[Parser\] (pf_gat_parser)
+<!-- [![Docs.rs](https://docs.rs/pf_gat_parser/badge.svg)](https://docs.rs/pf_gat_parser) -->
+[![CI](https://github.com/bioniclepta/pf_gat_parser/actions/workflows/rust.yml/badge.svg)](https://github.com/bioniclepta/pf_gat_parser/actions)
 
 > A fast parser for PSS/E `.raw` power system model files, written in Rust.
 
