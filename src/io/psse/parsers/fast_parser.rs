@@ -53,7 +53,8 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
                     }
                     section_starts.insert(section_number, i + 1);
                     section_number += 1;
-                } else if parts.len() > 7 {
+                // Specifically check for the bus section by looking for sections longer than 10 and starting with a numeric character
+                } else if (parts.len() > 10) & (trimmed_line.chars().next().unwrap().is_numeric()) {
                     section_starts.insert(section_number, i + 1);
                     section_number += 1;
                     break;
@@ -65,11 +66,19 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
     for (i, line_bytes) in lines.iter().enumerate() {
         if let Ok(line) = from_utf8(line_bytes) {
             let trimmed_line = line.trim();
+            // Check if the line is a section start
             if trimmed_line.starts_with("0 /") {
+                // If a section start has already been found, set the start and end to the same value
+                if found_section_start {
+                    section_starts.insert(section_number, i );
+                    section_number += 1;
+                }
+                // Sets the section end to the previous section and flags that a new section has been found
                 found_section_start = true;
                 section_ends.insert(section_number - 1, i);
                 continue;
             }
+            // If a section start has been found, and the line is not a comment or another line start, add it to the section start
             if found_section_start & !trimmed_line.starts_with("@") & !trimmed_line.starts_with("0 /") {
                 // Look specifically for lines that contain data after the section start
                 // then add it to the section start and revert the found_section_start variable
@@ -80,19 +89,16 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
         }
     }
 
-    /*
-    ***** ---- Don't worry about filling out induction machines on. No cases I've seen have them
-    Also look for the Q and break out of reading
-    Also also figure out and comment the initial parsing, idk how I'm getting section numbers
-    Also make a dummy .RAW file with 1 entry per to test reading the whole file (Take MISO's and obfuscate) [v33 and v35]
-    */
-
     let parse_adder: usize = (psse_data.header.revision >= 34) as usize;
     //Parse Buses
     if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&1), section_ends.get(&1)) {
         //let end_index = section_starts.get(&2).cloned().unwrap_or(lines.len())-1;
-        println!("Found BUS section between lines {}, {}", start_index, end_index);
-        psse_data.buses = parse_buses(&lines[start_index..end_index]);
+        //This fixes some issues since buses are parsed first, and in v33, they don't have a leading '/0'
+        if start_index == end_index {
+            psse_data.buses = parse_buses(std::slice::from_ref(&lines[start_index-1]));
+        } else {
+            psse_data.buses = parse_buses(&lines[start_index..end_index]);
+        }
     }
     //Parse Loads
     if let (Some(&start_index), Some(&end_index)) = (section_starts.get(&2), section_ends.get(&2)) {

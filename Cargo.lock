@@ -123,7 +123,7 @@ dependencies = [
 
 [[package]]
 name = "pf_gat_parser"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "memmap2",
  "rayon",
