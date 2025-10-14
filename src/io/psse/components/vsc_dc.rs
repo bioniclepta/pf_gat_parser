@@ -241,6 +241,8 @@ pub struct VSCDc {
 }
 
 pub fn parse_vsc_dc_line(lines: &[&[u8]], psse_version: i8) -> Vec<VSCDc> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     let mut vsc_dc_lines: Vec<VSCDc> = Vec::new();
     let mut i: usize = 0;
     // Version 34 added NREG

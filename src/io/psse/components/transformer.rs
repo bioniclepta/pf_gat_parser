@@ -608,6 +608,8 @@ pub struct Transformer {
 }
 
 pub fn parse_transformers(lines: &[&[u8]], psse_version: i8) -> Vec<Transformer> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     let mut transformers: Vec<Transformer> = Vec::new();
     let mut i = 0;
     while i < lines.len() {
@@ -661,7 +663,7 @@ fn parse_two_winding_transformer(parts1: Vec<&str>, line2_str: &str, line3_str: 
         owner3_percent: parts1[17].parse().unwrap_or(1.0),
         owner4: parts1[18].parse().unwrap_or(0),
         owner4_percent: parts1[19].parse().unwrap_or(1.0),
-        vector_group: parts1[20].replace("'", "").trim().to_string(),
+        vector_group: parts1.get(20).map_or("", |v| v).replace("'", "").trim().to_string(),
         zcod: 0,
 
         // Line 2
@@ -705,7 +707,7 @@ fn parse_two_winding_transformer(parts1: Vec<&str>, line2_str: &str, line3_str: 
         impedance_correction_table_1: parts3[13 + parse_adder].parse().unwrap_or(0),
         load_drop_comp_r1: parts3[14 + parse_adder].parse().unwrap_or(0.0),
         load_drop_comp_x1: parts3[15 + parse_adder].parse().unwrap_or(0.0),
-        connection_ang_1: parts3[16 + parse_adder].parse().unwrap_or(0.0),
+        connection_ang_1: parts3.get(16 + parse_adder).and_then(|s| s.parse().ok()).unwrap_or(0.0),
 
         // Line 4
 

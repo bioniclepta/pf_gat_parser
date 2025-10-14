@@ -35,6 +35,8 @@ pub struct Area {
 }
 
 pub fn parse_areas(lines: &[&[u8]]) -> Vec<Area> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     lines.par_iter().filter_map(|line_bytes| {
         from_utf8(line_bytes).ok().and_then(|line| {
             let parts: Vec<&str> = line.split(",").map(|s| s.trim()).collect();

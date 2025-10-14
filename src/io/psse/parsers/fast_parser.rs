@@ -27,6 +27,7 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
     let mut section_starts: HashMap<usize, usize> = HashMap::new();
     let mut section_ends: HashMap<usize, usize> = HashMap::new();
     let mut section_number: usize = 0;
+    let mut found_header: bool = false;
 
     for (i, line_bytes) in lines.iter().enumerate() {
         if i > 5 { break; }
@@ -34,7 +35,7 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
             let trimmed_line = line.trim();
             if !trimmed_line.is_empty() && !trimmed_line.starts_with("/") && !trimmed_line.starts_with("@") {
                 let parts: Vec<&str> = trimmed_line.split("/").nth(0).unwrap().split(",").map(|s| s.trim()).collect();
-                if parts.len() >= 4 && parts.len() <= 7 {
+                if parts.len() >= 4 && parts.len() <= 7 && !found_header {
                     psse_data.header = HeaderInfo {
                         ic: parts[0].parse().unwrap_or(0),
                         sbase: parts[1].parse().unwrap_or(100.0),
@@ -43,18 +44,17 @@ pub fn parse_fast(filepath: &str) -> Result<PSSEData, io::Error>  {
                         branch_rating_code: parts[4].parse().unwrap_or(0),
                         system_frequency: parts[5].parse().unwrap_or(60.0),
                     };
+                    found_header = true;
                     // Since V34+ have the leading /0 to indicate buses and also contain other junk at the start,
                     // Skip the attempt to locate the bus section
-                    if psse_data.header.revision >= 34 {
-                        // Increase the section number to get to start the bus section
-                        section_starts.insert(section_number, i + 1);
-                        section_number += 1;
-                        break;
-                    }
+                    // Increase the section number to get to start the bus section
                     section_starts.insert(section_number, i + 1);
                     section_number += 1;
+                    if psse_data.header.revision >= 34 {
+                        break;
+                    }
                 // Specifically check for the bus section by looking for sections longer than 10 and starting with a numeric character
-                } else if (parts.len() > 10) & (trimmed_line.chars().next().unwrap().is_numeric()) {
+                } else if (parts.len() >= 8) & (trimmed_line.chars().next().unwrap().is_numeric()) {
                     section_starts.insert(section_number, i + 1);
                     section_number += 1;
                     break;
@@ -180,11 +180,8 @@ mod tests {
 
     #[test]
     fn test_speed() {
-        let dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-        let filepath: String = format!("{}/cases/v33.raw", dir);
-        // let filepath: String = format!("{}/cases/IEEE 118 Bus.RAW", dir);
         let start = Instant::now();
-        let _ = parse_fast(&filepath);
+        let _ = parse_fast("/test-cases/TEST_parse_psse_v33.RAW");
         println!("Time to read and parse file: {:?}", start.elapsed());
     }
 

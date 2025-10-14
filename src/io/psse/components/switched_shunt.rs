@@ -92,6 +92,8 @@ pub struct SwitchedShunt {
 }
 
 pub fn parse_switched_shunts(lines: &[&[u8]], psse_version: i8) -> Vec<SwitchedShunt> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     let parse_adder_1: usize = (psse_version >= 34) as usize;
     let parse_adder_2: usize = parse_adder_1 * 2;
     

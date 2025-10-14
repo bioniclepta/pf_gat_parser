@@ -109,6 +109,8 @@ pub struct Load {
 }
 
 pub fn parse_loads(lines: &[&[u8]]) -> Vec<Load> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     lines.par_iter().filter_map(|line_bytes| {
         from_utf8(line_bytes).ok().and_then(|line| {
             let parts: Vec<&str> = line.split(",").map(|s| s.trim()).collect();
@@ -126,7 +128,7 @@ pub fn parse_loads(lines: &[&[u8]]) -> Vec<Load> {
                 yq_mvar: parts[10].parse().unwrap_or(0.0),
                 owner: parts[11].parse().unwrap_or(1),
                 scale: parts[12].parse().unwrap_or(1),
-                interruptable: parts[13].parse().unwrap_or(0),
+                interruptable: parts.get(13).and_then(|s| s.parse().ok()).unwrap_or(0),
                 dgen_mw: parts.get(14).and_then(|s| s.parse().ok()).unwrap_or(0.0),
                 dgen_mvar: parts.get(15).and_then(|s| s.parse().ok()).unwrap_or(0.0),
                 dgen_mode: parts.get(16).and_then(|s| s.parse().ok()).unwrap_or(0),
@@ -134,4 +136,35 @@ pub fn parse_loads(lines: &[&[u8]]) -> Vec<Load> {
             })
         })
     }).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_load_v33() {
+        let load_str: &'static str = "   84,'1 ',1,   1,   1,    11.000,     7.000,     0.000,     0.000,     0.000,    -0.000,   1,1";
+        let loads: Vec<&[u8]> = load_str.lines().map(|line| line.as_bytes()).collect();
+        let binding: Vec<Load> = parse_loads(&loads);
+        let load: Option<&Load> = binding.get(0);
+        //To avoid checking everything, check bits and pieces to make sure things are in the right place
+        //If any values were distorted on the lines from the adder, it would show here
+        assert_eq!(load.unwrap().bus_id, 84);
+        assert_eq!(load.unwrap().id, "1".to_string());
+        assert_eq!(load.unwrap().status, 1);
+    }
+
+    #[test]
+    fn parse_load_v35() {
+        let load_str: &'static str = "110001,'1 ',1,   7,   1,     0.353,     0.145,     0.000,     0.000,     0.000,     0.000,   1,1, 0,     0.000,     0.000, 1,'            '";
+        let loads: Vec<&[u8]> = load_str.lines().map(|line| line.as_bytes()).collect();
+        let binding: Vec<Load> = parse_loads(&loads);
+        let load: Option<&Load> = binding.get(0);
+        //To avoid checking everything, check bits and pieces to make sure things are in the right place
+        //If any values were distorted on the lines from the adder, it would show here
+        assert_eq!(load.unwrap().bus_id, 110001);
+        assert_eq!(load.unwrap().id, "1".to_string());
+        assert_eq!(load.unwrap().status, 1);
+    }
 }

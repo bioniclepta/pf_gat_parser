@@ -246,6 +246,8 @@ pub struct TwoTerminalDc {
 }
 
 pub fn parse_two_terminal_dc_line(lines: &[&[u8]], psse_version: i8) -> Vec<TwoTerminalDc> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     let mut two_terminal_dc_lines: Vec<TwoTerminalDc> = Vec::new();
     let mut i: usize = 0;
     // Version 34 added NDI and NDR

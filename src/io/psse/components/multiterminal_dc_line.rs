@@ -170,6 +170,8 @@ pub struct MultiTermDCLine {
 }
 
 pub fn parse_multiterminal_dc_line(lines: &[&[u8]]) -> Vec<MultiTermDCLine> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     let mut mt_dc_lines: Vec<MultiTermDCLine> = Vec::new();
     let mut i: usize = 0;
     while i < lines.len() {

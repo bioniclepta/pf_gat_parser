@@ -182,6 +182,8 @@ pub struct Branch {
 }
 
 pub fn parse_lines(lines: &[&[u8]], psse_version: i8) -> Vec<Branch> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     // a bool to int to add to the line parsing since V34 introduced new variables in the middle of everything
     let parse_adder: usize = (psse_version >= 34) as usize;
     let rating_adder: usize = parse_adder * 10;

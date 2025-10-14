@@ -38,6 +38,8 @@ pub struct MultiSectionLine {
 }
 
 pub fn parse_multisection_lines(lines: &[&[u8]]) -> Vec<MultiSectionLine> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     lines.par_iter().filter_map(|line_bytes| {
         from_utf8(line_bytes).ok().and_then(|line| {
             let parts: Vec<&str> = line.split(",").map(|s| s.trim()).collect();

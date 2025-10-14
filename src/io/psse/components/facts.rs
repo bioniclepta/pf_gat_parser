@@ -119,6 +119,8 @@ pub struct Facts {
 }
 
 pub fn parse_facts(lines: &[&[u8]], psse_version: i8) -> Vec<Facts> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     let parse_adder: usize = (psse_version >= 34) as usize;
 
     lines.par_iter().filter_map(|line_bytes| {

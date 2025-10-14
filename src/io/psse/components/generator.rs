@@ -167,6 +167,8 @@ pub struct Generator {
 }
 
 pub fn parse_generators(lines: &[&[u8]], psse_version: i8) -> Vec<Generator> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     // a bool to int to add to the line parsing since V34 added more ratings
     let parse_adder: usize = (psse_version >= 34) as usize;
     lines.par_iter().filter_map(|line_bytes| {

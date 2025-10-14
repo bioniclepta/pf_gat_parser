@@ -36,6 +36,8 @@ impl ImpedanceCorrectionEntry {
 }
 
 pub fn parse_impedance_correction_table(lines: &[&[u8]], psse_version: i8) -> Vec<ImpedanceCorrectionTable> {
+    //Check if there is even data before proceeding
+    if lines.len() == 0 {return Vec::new();}
     //Create a new vec of correction tables to push into
     let mut correction_tables: Vec<ImpedanceCorrectionTable> = Vec::new();
     //Define while loop variables
